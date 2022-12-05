@@ -6,7 +6,7 @@ struct Buf([u8; 64 + 32]);
 pub unsafe fn part1_simd(input: &[u8]) -> u64 {
     let input_len = input.len();
     let ptr = input.as_ptr();
-    assert!(ptr as usize % 16 == 0);
+    assert!(input_len >= 16 && ptr as usize % 16 == 0);
 
     let mut buf = Buf([0u8; 64 + 32]);
     let buf_ptr = &mut buf as *mut Buf as *mut u8;
