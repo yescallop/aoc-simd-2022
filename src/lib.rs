@@ -1,23 +1,25 @@
 #![feature(stdsimd)]
-#![allow(unused)]
 
 pub mod day_04;
 
 use std::fmt::Debug;
 
-use bytemuck::{bytes_of, AnyBitPattern, NoUninit};
+use bytemuck::{AnyBitPattern, NoUninit};
 
+#[allow(unused)]
 fn print_bytes_of<T: NoUninit>(t: &T) {
     let bytes = bytemuck::bytes_of(t);
     print_bytes(&bytes);
 }
 
+#[allow(unused)]
 fn print_as_slice<B: AnyBitPattern + Debug>(a: &impl NoUninit) {
     let bytes = bytemuck::bytes_of(a);
     let slice: &[B] = bytemuck::cast_slice(bytes);
     println!("{slice:?}");
 }
 
+#[allow(unused)]
 fn print_bytes(bytes: &[u8]) {
     for &(mut b) in bytes {
         if b == b'\n' {
