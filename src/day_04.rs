@@ -3,12 +3,12 @@ use std::arch::x86_64::*;
 #[repr(C, align(64))]
 struct Buf([u8; 64 * 6]);
 
-pub fn part1_simd(input: &[u8]) -> u64 {
+pub fn part1_avx512(input: &[u8]) -> u64 {
     assert!(input.as_ptr() as usize % 2 == 0);
-    unsafe { _part1_simd(input) }
+    unsafe { _part1_avx512(input) }
 }
 
-unsafe fn _part1_simd(input: &[u8]) -> u64 {
+unsafe fn _part1_avx512(input: &[u8]) -> u64 {
     let input_len = input.len();
     let ptr = input.as_ptr();
 
