@@ -3,7 +3,12 @@ use std::arch::x86_64::*;
 #[repr(C, align(64))]
 struct Buf([u8; 64 * 6]);
 
-pub unsafe fn part1_simd(input: &[u8]) -> u64 {
+pub fn part1_simd(input: &[u8]) -> u64 {
+    assert!(input.as_ptr() as usize % 2 == 0);
+    unsafe { _part1_simd(input) }
+}
+
+unsafe fn _part1_simd(input: &[u8]) -> u64 {
     let input_len = input.len();
     let ptr = input.as_ptr();
 
@@ -114,4 +119,24 @@ pub unsafe fn part1_simd(input: &[u8]) -> u64 {
     }
 
     _mm512_reduce_add_epi64(sum1) as u64
+}
+
+pub fn part1_naive(input: &str) -> u64 {
+    fn range(s: &str) -> Option<(u32, u32)> {
+        let (l, r) = s.split_once('-')?;
+        l.parse().ok().zip(r.parse().ok())
+    }
+    fn contains(a: (u32, u32), b: (u32, u32)) -> bool {
+        let (x, y) = (b.0 as i32 - a.0 as i32, b.1 as i32 - a.1 as i32);
+        x * y <= 0
+    }
+
+    let mut cnt = 0;
+    for line in input.lines() {
+        let (l, r) = line.split_once(',').unwrap();
+        let (l, r) = range(l).zip(range(r)).unwrap();
+        cnt += contains(l, r) as u64;
+    }
+
+    cnt
 }
