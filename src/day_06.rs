@@ -20,15 +20,14 @@ unsafe fn _part1_simd(input: &[u8]) -> Option<usize> {
         let off_by_16 = _mm512_alignr_epi8::<2>(off_by_128, chunk);
         let off_by_24 = _mm512_alignr_epi8::<3>(off_by_128, chunk);
 
-        let mut mask = 0;
-        mask |= _mm512_cmpeq_epi8_mask(chunk, off_by_8);
-        mask |= _mm512_cmpeq_epi8_mask(chunk, off_by_16);
-        mask |= _mm512_cmpeq_epi8_mask(chunk, off_by_24);
-        mask |= _mm512_cmpeq_epi8_mask(off_by_8, off_by_16);
-        mask |= _mm512_cmpeq_epi8_mask(off_by_8, off_by_24);
-        mask |= _mm512_cmpeq_epi8_mask(off_by_16, off_by_24);
+        let mut neq = _mm512_cmpneq_epi8_mask(chunk, off_by_8);
+        neq &= _mm512_cmpneq_epi8_mask(chunk, off_by_16);
+        neq &= _mm512_cmpneq_epi8_mask(chunk, off_by_24);
+        neq &= _mm512_cmpneq_epi8_mask(off_by_8, off_by_16);
+        neq &= _mm512_cmpneq_epi8_mask(off_by_8, off_by_24);
+        neq &= _mm512_cmpneq_epi8_mask(off_by_16, off_by_24);
 
-        if mask != !0 {
+        if neq != 0 {
             break;
         }
 
