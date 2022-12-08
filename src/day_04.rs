@@ -24,7 +24,6 @@ unsafe fn _part1_avx512(input: &[u8]) -> u64 {
     let ascii_zero = _mm512_set1_epi8(b'0' as i8);
     let shuf_ctrl = _mm_set_epi8(14, 15, 12, 13, 6, 7, 4, 5, 10, 11, 8, 9, 2, 3, 0, 1);
     let shuf_ctrl512 = _mm512_broadcast_i32x4(shuf_ctrl);
-    let one_i64x2 = _mm_set1_epi64x(1);
     let one_i64x8 = _mm512_set1_epi64(1);
 
     let mut sum1 = _mm512_setzero_si512();
@@ -36,31 +35,29 @@ unsafe fn _part1_avx512(input: &[u8]) -> u64 {
         // 4219823908295049
         let shuf1 = _mm_shuffle_epi8(buf, shuf_ctrl);
         // 0829504908295049
-        let shuf2 = _mm_shuffle_epi32::<0b11101110>(shuf1);
+        let hi = _mm_unpackhi_epi64(shuf1, shuf1);
         // [-1532, -1, 515, -1, 0, 0, 0, 0]
-        let sub = _mm_sub_epi16(shuf1, shuf2);
+        let sub = _mm_sub_epi16(shuf1, hi);
         // [-1532, -1, 515, -1]
         let sign_ext = _mm_cvtepi16_epi32(sub);
         // [-1, -1, -1, -1]
-        let shuf3 = _mm_shuffle_epi32::<0b11110101>(sign_ext);
+        let shuf2 = _mm_shuffle_epi32::<0b11110101>(sign_ext);
         // [1532, -515]
-        let mul = _mm_mul_epi32(sign_ext, shuf3);
+        let mul = _mm_mul_epi32(sign_ext, shuf2);
         // [0, -1]
-        let cmp = _mm_cmpgt_epi64_mask(one_i64x2, mul);
+        let cmp = _mm_cmple_epi64_mask(mul, _mm_setzero_si128());
         *sum1 = _mm512_mask_add_epi64(*sum1, cmp, *sum1, one_i64x8);
     };
 
     let consume_buf_u16x32 = |offset, sum1: &mut __m512i| {
         let buf = _mm512_load_si512(buf_ptr.add(offset).cast());
         let shuf1 = _mm512_shuffle_epi8(buf, shuf_ctrl512);
-        let shuf2 = _mm512_shuffle_epi32::<0b11101110>(shuf1);
-        let sub = _mm512_sub_epi16(shuf1, shuf2);
-        let perm = _mm512_permutex_epi64::<0b11011000>(sub);
-        let shuf3 = _mm512_shuffle_i64x2::<0b11011000>(perm, perm);
-        let sign_ext = _mm512_cvtepi16_epi32(_mm512_castsi512_si256(shuf3));
-        let shuf4 = _mm512_shuffle_epi32::<0b11110101>(sign_ext);
-        let mul = _mm512_mul_epi32(sign_ext, shuf4);
-        let cmp = _mm512_cmpgt_epi64_mask(one_i64x8, mul);
+        let hi = _mm512_unpackhi_epi64(shuf1, shuf1);
+        let sub = _mm512_sub_epi16(shuf1, hi);
+        let unpack = _mm512_unpacklo_epi16(_mm512_setzero_si512(), sub);
+        let shuf2 = _mm512_shuffle_epi32::<0b11110101>(unpack);
+        let mul = _mm512_mul_epi32(unpack, shuf2);
+        let cmp = _mm512_cmple_epi64_mask(mul, _mm512_setzero_si512());
         *sum1 = _mm512_mask_add_epi64(*sum1, cmp, *sum1, one_i64x8);
     };
 
