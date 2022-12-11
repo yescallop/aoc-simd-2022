@@ -44,7 +44,6 @@ unsafe fn _part1_avx512(input: &[u8]) -> u64 {
         let shuf2 = _mm_shuffle_epi32::<0b11110101>(sign_ext);
         // [1532, -515]
         let mul = _mm_mul_epi32(sign_ext, shuf2);
-        // [0, -1]
         let cmp = _mm_cmple_epi64_mask(mul, _mm_setzero_si128());
         *sum1 = _mm512_mask_add_epi64(*sum1, cmp, *sum1, one_i64x8);
     };
