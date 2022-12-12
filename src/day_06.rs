@@ -34,6 +34,9 @@ unsafe fn solve_avx512<const N: usize>(input: &[u8]) -> Option<usize> {
         neq &= _mm512_cmpneq_epi8_mask(off_by_16, off_by_24);
 
         if neq != 0 {
+            if N == 4 {
+                return Some(i + neq.trailing_zeros() as usize + 4);
+            }
             break;
         }
 
