@@ -4,7 +4,6 @@ use std::arch::x86_64::*;
 struct Buf([u8; 64 * 6]);
 
 pub fn part1_avx512(input: &[u8]) -> u64 {
-    assert!(input.as_ptr() as usize % 2 == 0);
     unsafe { _part1_avx512(input) }
 }
 

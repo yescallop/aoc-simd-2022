@@ -10,6 +10,7 @@ use test::Bencher;
 #[bench]
 fn d6p1_avx512(b: &mut Bencher) -> io::Result<()> {
     let input = fs::read_to_string("input/06.txt")?;
+    b.bytes = input.len() as u64;
     b.iter(|| part1_avx512(input.as_bytes()));
     Ok(())
 }
@@ -38,6 +39,7 @@ fn d6p1_naive_short_circuit(b: &mut Bencher) -> io::Result<()> {
 #[bench]
 fn d6p2_avx512(b: &mut Bencher) -> io::Result<()> {
     let input = fs::read_to_string("input/06.txt")?;
+    b.bytes = input.len() as u64;
     b.iter(|| part2_avx512(input.as_bytes()));
     Ok(())
 }
