@@ -62,12 +62,8 @@ unsafe fn _part1_avx512(input: &[u8]) -> u64 {
 
     let mut i = 0;
     while i + 64 + 2 <= input_len {
-        let sup: u16 = *ptr.add(i + 64).cast();
-        let sup = _mm512_castsi128_si512(_mm_cvtsi32_si128(sup as i32));
-
         let chunk = _mm512_loadu_si512(ptr.add(i).cast());
-        let off_by_128 = _mm512_alignr_epi64::<2>(sup, chunk);
-        let off_by_16 = _mm512_alignr_epi8::<2>(off_by_128, chunk);
+        let off_by_16 = _mm512_loadu_si512(ptr.add(i + 2).cast());
         let lucky_or = _mm512_or_si512(chunk, off_by_16);
 
         let to_fill = _mm512_cmplt_epi8_mask(lucky_or, ascii_zero);
