@@ -17,16 +17,16 @@ unsafe fn solve_avx512<const N: usize>(input: &[u8]) -> Option<usize> {
     while i + 64 + 3 <= len {
         let chunk = _mm512_loadu_si512(ptr.add(i).cast());
 
-        let off_by_8 = _mm512_loadu_si512(ptr.add(i + 1).cast());
-        let off_by_16 = _mm512_loadu_si512(ptr.add(i + 2).cast());
-        let off_by_24 = _mm512_loadu_si512(ptr.add(i + 3).cast());
+        let off_by_1 = _mm512_loadu_si512(ptr.add(i + 1).cast());
+        let off_by_2 = _mm512_loadu_si512(ptr.add(i + 2).cast());
+        let off_by_3 = _mm512_loadu_si512(ptr.add(i + 3).cast());
 
-        let mut neq = _mm512_cmpneq_epi8_mask(chunk, off_by_8);
-        neq &= _mm512_cmpneq_epi8_mask(chunk, off_by_16);
-        neq &= _mm512_cmpneq_epi8_mask(chunk, off_by_24);
-        neq &= _mm512_cmpneq_epi8_mask(off_by_8, off_by_16);
-        neq &= _mm512_cmpneq_epi8_mask(off_by_8, off_by_24);
-        neq &= _mm512_cmpneq_epi8_mask(off_by_16, off_by_24);
+        let mut neq = _mm512_cmpneq_epi8_mask(chunk, off_by_1);
+        neq &= _mm512_cmpneq_epi8_mask(chunk, off_by_2);
+        neq &= _mm512_cmpneq_epi8_mask(chunk, off_by_3);
+        neq &= _mm512_cmpneq_epi8_mask(off_by_1, off_by_2);
+        neq &= _mm512_cmpneq_epi8_mask(off_by_1, off_by_3);
+        neq &= _mm512_cmpneq_epi8_mask(off_by_2, off_by_3);
 
         if neq != 0 {
             i += neq.trailing_zeros() as usize;
